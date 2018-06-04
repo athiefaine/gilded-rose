@@ -77,12 +77,33 @@ public class GildedRoseTest {
         assertInnContentsEquals(expectedInnContents, inn);
     }
 
+    @Test
+    public void update_quality_behaves_as_in_golden_master() {
+        Inn inn = new Inn();
+        LegacyInn legacyInn = new LegacyInn();
+        for (int i=0; i< 100; i++) {
+            inn.updateQuality();
+            legacyInn.updateQuality();
+            assertInnAndLegacyInnContentAreEquals(inn, legacyInn);
+        }
 
-    private void assertInnContentsEquals(String[] expectedInnContents, Inn inn) {
-        assertArrayEquals(expectedInnContents,
-                Arrays.stream(inn.items)
-                        .map(item -> item.toString())
-                        .toArray());
     }
 
+    private void assertInnAndLegacyInnContentAreEquals(Inn inn, LegacyInn legacyInn) {
+        assertArrayEquals(
+                itemsToStringArray(legacyInn.items),
+                itemsToStringArray(inn.items));
+    }
+
+    private void assertInnContentsEquals(String[] expectedInnContents, Inn inn) {
+        assertArrayEquals(
+                expectedInnContents,
+                itemsToStringArray(inn.items));
+    }
+
+    private Object[] itemsToStringArray(Item[] items) {
+        return Arrays.stream(items)
+                .map(item -> item.toString())
+                .toArray();
+    }
 }
