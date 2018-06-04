@@ -9,7 +9,22 @@ import java.util.Arrays;
 public class GildedRoseTest {
 
     @Test
-    public void update_quality_once() {
+    public void update_quality_on_a_single_item_once() {
+        Item[] items = new Item[]{
+                new Item("+5 Dexterity Vest", 10, 20)
+        };
+        Inn inn = new Inn(items);
+        inn.updateQuality();
+
+        String[] expectedInnContents =  {
+                "+5 Dexterity Vest, 9, 19",
+        };
+
+        assertInnContentsEquals(expectedInnContents, inn);
+    }
+
+    @Test
+    public void update_quality_for_full_item_stock_once() {
         Inn inn = new Inn();
         inn.updateQuality();
 
@@ -26,7 +41,7 @@ public class GildedRoseTest {
     }
 
     @Test
-    public void update_quality_twice() {
+    public void update_quality_for_full_item_stock_twice() {
         Inn inn = new Inn();
         inn.updateQuality();
         inn.updateQuality();
@@ -38,6 +53,25 @@ public class GildedRoseTest {
                 "Sulfuras, Hand of Ragnaros, 0, 80",
                 "Backstage passes to a TAFKAL80ETC concert, 13, 22",
                 "Conjured Mana Cake, 1, 4"
+        };
+
+        assertInnContentsEquals(expectedInnContents, inn);
+    }
+
+    @Test
+    public void update_quality_for_full_item_stock_one_hundred_times() {
+        Inn inn = new Inn();
+        for (int i=0; i< 100; i++) {
+            inn.updateQuality();
+        }
+
+        String[] expectedInnContents =  {
+                "+5 Dexterity Vest, -90, 0",
+                "Aged Brie, -98, 50",
+                "Elixir of the Mongoose, -95, 0",
+                "Sulfuras, Hand of Ragnaros, 0, 80",
+                "Backstage passes to a TAFKAL80ETC concert, -85, 0",
+                "Conjured Mana Cake, -97, 0"
         };
 
         assertInnContentsEquals(expectedInnContents, inn);
