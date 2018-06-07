@@ -1,11 +1,8 @@
 package com.gildedrose;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.function.Consumer;
+import static com.gildedrose.ItemQualityUpdaterDSL.*;
 
 public class ItemUpdater {
-
 
     private Item item;
 
@@ -13,35 +10,47 @@ public class ItemUpdater {
         this.item = item;
     }
 
-    void updateQuality() {
-        if (this.item.name.equals("Sulfuras, Hand of Ragnaros")) {
-            return;
+    public void update() {
+        updateSellIn();
+        updateQuality();
+    }
+
+    private void updateSellIn() {
+        if (!"Sulfuras, Hand of Ragnaros".equals(item.name)) {
+            on(item)
+                .once()
+                .perform(it -> decreaseSellIn());
         }
+    }
 
-        decreaseSellIn();
+    private void updateQuality() {
+        switch (item.name) {
+            case "Sulfuras, Hand of Ragnaros":
+                break;
 
-        if (this.item.name.equals("Aged Brie")) {
-            ItemQualityUpdater
-                    .on(item)
-                    .atLeastOnce()
-                    .andAlsoWhenSellInIsBelow(0)
-                    .perform(it -> increaseQuality());
-        } else if (this.item.name.equals("Backstage passes to a TAFKAL80ETC concert")) {
-            ItemQualityUpdater
-                    .on(item)
-                    .atLeastOnce()
-                    .andAlsoWhenSellInIsBelow(10)
-                    .andAlsoWhenSellInIsBelow(5)
-                    .perform(it -> increaseQuality())
-                    .andNext()
-                    .whenSellInIsBelow(0)
-                    .perform(it -> destroyQuality())                    ;
-        } else {
-            ItemQualityUpdater
-                    .on(item)
-                    .atLeastOnce()
-                    .andAlsoWhenSellInIsBelow(0)
-                    .perform(it -> decreaseQuality());
+            case "Aged Brie":
+                on(item)
+                        .once()
+                        .andAlsoWhenSellInIsBelow(0)
+                        .perform(it -> increaseQuality());
+                break;
+
+            case "Backstage passes to a TAFKAL80ETC concert":
+                on(item)
+                        .once()
+                        .andAlsoWhenSellInIsBelow(10)
+                        .andAlsoWhenSellInIsBelow(5)
+                        .perform(it -> increaseQuality())
+                        .andNext()
+                        .whenSellInIsBelow(0)
+                        .perform(it -> destroyQuality());
+                break;
+
+            default:
+                on(item)
+                        .once()
+                        .andAlsoWhenSellInIsBelow(0)
+                        .perform(it -> decreaseQuality());
         }
     }
 
@@ -65,47 +74,4 @@ public class ItemUpdater {
         }
     }
 
-    private static class ItemQualityUpdater {
-
-        private final Collection<Integer> sellInThresholds = new ArrayList<>();
-        private Item item;
-
-        private ItemQualityUpdater() {
-
-        }
-
-        public static ItemQualityUpdater on(Item item) {
-            ItemQualityUpdater itemQualityUpdater = new ItemQualityUpdater();
-            itemQualityUpdater.item = item;
-                    return itemQualityUpdater;
-        }
-
-         ItemQualityUpdater perform(Consumer<Integer> action) {
-                    sellInThresholds.stream()
-                    .filter(val -> item.sellIn < val )
-                    .forEach(action);
-            return this;
-        }
-
-        public ItemQualityUpdater atLeastOnce() {
-            sellInThresholds.add(Integer.MAX_VALUE);
-            return this;
-        }
-
-        public ItemQualityUpdater whenSellInIsBelow(Integer threshold) {
-            sellInThresholds.add(threshold);
-            return this;
-        }
-
-        public ItemQualityUpdater andAlsoWhenSellInIsBelow(Integer threshold) {
-            return whenSellInIsBelow(threshold);
-        }
-
-        public ItemQualityUpdater andNext() {
-            sellInThresholds.clear();
-            return this;
-        }
-
-
-    }
 }
