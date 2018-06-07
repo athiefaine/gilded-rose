@@ -1,8 +1,8 @@
 package com.gildedrose;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public class ItemUpdater {
 
@@ -21,20 +21,30 @@ public class ItemUpdater {
         decreaseSellIn();
 
         if (this.item.name.equals("Aged Brie")) {
-            updateQualityWithAction(it -> increaseQuality(), true, 0);
+            ItemQualityUpdater
+                    .perform(it -> increaseQuality())
+                    .atLeastOnce()
+                    .andAlsoWhenSellInIsBelow(0)
+                    .on(item);
         } else if (this.item.name.equals("Backstage passes to a TAFKAL80ETC concert")) {
-            updateQualityWithAction(it -> increaseQuality(), true, 5, 10);
-            updateQualityWithAction(it -> destroyQuality(), false, 0);
-        } else {
-            updateQualityWithAction(it -> decreaseQuality(), true, 0);
-        }
-    }
+            ItemQualityUpdater
+                    .perform(it -> increaseQuality())
+                    .atLeastOnce()
+                    .andAlsoWhenSellInIsBelow(10)
+                    .andAlsoWhenSellInIsBelow(5)
+                    .on(item);
 
-    private void updateQualityWithAction(Consumer<Integer> action, Boolean always, Integer... sellInThresholds) {
-        Stream.concat(always ? Stream.of( Integer.MAX_VALUE) : Stream.empty(),
-                Stream.of(sellInThresholds))
-                .filter(val -> this.item.sellIn < val)
-                .forEach(action);
+            ItemQualityUpdater
+                    .perform(it -> destroyQuality())
+                    .whenSellInIsBelow(0)
+                    .on(item);
+        } else {
+            ItemQualityUpdater
+                    .perform(it -> decreaseQuality())
+                    .atLeastOnce()
+                    .andAlsoWhenSellInIsBelow(0)
+                    .on(item);
+        }
     }
 
     private void destroyQuality() {
@@ -55,5 +65,42 @@ public class ItemUpdater {
         if (this.item.quality < 50) {
             this.item.quality = this.item.quality + 1;
         }
+    }
+
+    private static class ItemQualityUpdater {
+
+        private Consumer<Integer> action;
+        private final Collection<Integer> sellInThresholds = new ArrayList<>();
+
+        private ItemQualityUpdater() {
+
+        }
+
+        static ItemQualityUpdater perform(Consumer<Integer> action) {
+            ItemQualityUpdater itemQualityUpdater = new ItemQualityUpdater();
+            itemQualityUpdater.action = action;
+            return itemQualityUpdater;
+        }
+
+        public ItemQualityUpdater atLeastOnce() {
+            sellInThresholds.add(Integer.MAX_VALUE);
+            return this;
+        }
+
+        public ItemQualityUpdater whenSellInIsBelow(Integer threshold) {
+            sellInThresholds.add(threshold);
+            return this;
+        }
+
+        public ItemQualityUpdater andAlsoWhenSellInIsBelow(Integer threshold) {
+            return whenSellInIsBelow(threshold);
+        }
+
+        public void on(Item item) {
+                    sellInThresholds.stream()
+                    .filter(val -> item.sellIn < val )
+                    .forEach(action);
+        }
+
     }
 }
