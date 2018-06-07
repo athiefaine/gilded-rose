@@ -22,28 +22,26 @@ public class ItemUpdater {
 
         if (this.item.name.equals("Aged Brie")) {
             ItemQualityUpdater
-                    .perform(it -> increaseQuality())
+                    .on(item)
                     .atLeastOnce()
                     .andAlsoWhenSellInIsBelow(0)
-                    .on(item);
+                    .perform(it -> increaseQuality());
         } else if (this.item.name.equals("Backstage passes to a TAFKAL80ETC concert")) {
             ItemQualityUpdater
-                    .perform(it -> increaseQuality())
+                    .on(item)
                     .atLeastOnce()
                     .andAlsoWhenSellInIsBelow(10)
                     .andAlsoWhenSellInIsBelow(5)
-                    .on(item);
-
-            ItemQualityUpdater
-                    .perform(it -> destroyQuality())
+                    .perform(it -> increaseQuality())
+                    .andNext()
                     .whenSellInIsBelow(0)
-                    .on(item);
+                    .perform(it -> destroyQuality())                    ;
         } else {
             ItemQualityUpdater
-                    .perform(it -> decreaseQuality())
+                    .on(item)
                     .atLeastOnce()
                     .andAlsoWhenSellInIsBelow(0)
-                    .on(item);
+                    .perform(it -> decreaseQuality());
         }
     }
 
@@ -69,17 +67,24 @@ public class ItemUpdater {
 
     private static class ItemQualityUpdater {
 
-        private Consumer<Integer> action;
         private final Collection<Integer> sellInThresholds = new ArrayList<>();
+        private Item item;
 
         private ItemQualityUpdater() {
 
         }
 
-        static ItemQualityUpdater perform(Consumer<Integer> action) {
+        public static ItemQualityUpdater on(Item item) {
             ItemQualityUpdater itemQualityUpdater = new ItemQualityUpdater();
-            itemQualityUpdater.action = action;
-            return itemQualityUpdater;
+            itemQualityUpdater.item = item;
+                    return itemQualityUpdater;
+        }
+
+         ItemQualityUpdater perform(Consumer<Integer> action) {
+                    sellInThresholds.stream()
+                    .filter(val -> item.sellIn < val )
+                    .forEach(action);
+            return this;
         }
 
         public ItemQualityUpdater atLeastOnce() {
@@ -96,11 +101,11 @@ public class ItemUpdater {
             return whenSellInIsBelow(threshold);
         }
 
-        public void on(Item item) {
-                    sellInThresholds.stream()
-                    .filter(val -> item.sellIn < val )
-                    .forEach(action);
+        public ItemQualityUpdater andNext() {
+            sellInThresholds.clear();
+            return this;
         }
+
 
     }
 }
