@@ -19,9 +19,10 @@ public class ItemQualityUpdaterDSL {
         return itemQualityUpdaterDSL;
     }
 
-    ItemQualityUpdaterDSL perform(Consumer<Integer> action) {
+    ItemQualityUpdaterDSL perform(Consumer<Item> action) {
         sellInThresholds.stream()
                 .filter(val -> item.sellIn < val)
+                .map(i -> item)
                 .forEach(action);
         return this;
     }

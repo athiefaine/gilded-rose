@@ -19,7 +19,7 @@ public class ItemUpdater {
         if (!"Sulfuras, Hand of Ragnaros".equals(item.name)) {
             on(item)
                 .once()
-                .perform(it -> decreaseSellIn());
+                .perform(ItemUpdaterHelper::decreaseSellIn);
         }
     }
 
@@ -32,7 +32,7 @@ public class ItemUpdater {
                 on(item)
                         .once()
                         .andAlsoWhenSellInIsBelow(0)
-                        .perform(it -> increaseQuality());
+                        .perform(ItemUpdaterHelper::increaseQuality);
                 break;
 
             case "Backstage passes to a TAFKAL80ETC concert":
@@ -40,37 +40,17 @@ public class ItemUpdater {
                         .once()
                         .andAlsoWhenSellInIsBelow(10)
                         .andAlsoWhenSellInIsBelow(5)
-                        .perform(it -> increaseQuality())
+                        .perform(ItemUpdaterHelper::increaseQuality)
                         .andNext()
                         .whenSellInIsBelow(0)
-                        .perform(it -> destroyQuality());
+                        .perform(ItemUpdaterHelper::destroyQuality);
                 break;
 
             default:
                 on(item)
                         .once()
                         .andAlsoWhenSellInIsBelow(0)
-                        .perform(it -> decreaseQuality());
-        }
-    }
-
-    private void destroyQuality() {
-        this.item.quality = 0;
-    }
-
-    private void decreaseSellIn() {
-        this.item.sellIn = this.item.sellIn - 1;
-    }
-
-    void decreaseQuality() {
-        if (this.item.quality > 0) {
-            this.item.quality = this.item.quality - 1;
-        }
-    }
-
-    void increaseQuality() {
-        if (this.item.quality < 50) {
-            this.item.quality = this.item.quality + 1;
+                        .perform(ItemUpdaterHelper::decreaseQuality);
         }
     }
 
