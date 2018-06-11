@@ -1,7 +1,7 @@
 package com.gildedrose;
 
-class Inn {
-    Item[] items;
+public class Inn {
+    public Item[] items;
 
     public Inn(Item[] items) {
         this.items = items;

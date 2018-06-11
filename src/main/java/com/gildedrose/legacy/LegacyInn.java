@@ -1,4 +1,6 @@
-package com.gildedrose;
+package com.gildedrose.legacy;
+
+import com.gildedrose.Item;
 
 class LegacyInn {
     Item[] items;

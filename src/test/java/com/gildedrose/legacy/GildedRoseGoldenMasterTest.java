@@ -1,12 +1,15 @@
-package com.gildedrose;
+package com.gildedrose.legacy;
 
 import static org.junit.Assert.*;
 
+import com.gildedrose.Inn;
+import com.gildedrose.Item;
+import com.gildedrose.legacy.LegacyInn;
 import org.junit.Test;
 
 import java.util.Arrays;
 
-public class GildedRoseTest {
+public class GildedRoseGoldenMasterTest {
 
     @Test
     public void update_quality_on_a_single_item_once() {
