@@ -40,13 +40,13 @@ public class RandomItemTest extends GildedRoseAbstractTest {
     }
 
     @Test
-    public void item_agedBrie_sellIn_decreases_once() {
+    public void item_random_sellIn_decreases_once() {
         new ItemUpdater(itemRandom).update();
         assertThat(itemRandom.sellIn).isEqualTo(ITEM_RANDOM_INITIAL_SELLIN - ONCE);
     }
 
     @Test
-    public void item_agedBrie_quality_is_always_between_0_and_50() {
+    public void item_random_quality_is_always_between_0_and_50() {
         ItemUpdater itemUpdater = new ItemUpdater(itemRandom);
         repeatManyTimes(() -> {
             itemUpdater.update();

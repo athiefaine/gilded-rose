@@ -8,7 +8,6 @@ public class Inn {
     }
 
     public Inn() {
-        super();
         items = new Item[]{
                 new Item("+5 Dexterity Vest", 10, 20),
                 new Item("Aged Brie", 2, 0),

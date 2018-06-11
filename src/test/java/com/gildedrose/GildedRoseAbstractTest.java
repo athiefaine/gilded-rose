@@ -15,7 +15,7 @@ public class GildedRoseAbstractTest {
     }
 
     public static void repeatManyTimes(Runnable action) {
-        IntStream.range(0, MANY_TIMES).forEach(i -> action.run());
+        repeat(MANY_TIMES, action);
     }
 
 }
